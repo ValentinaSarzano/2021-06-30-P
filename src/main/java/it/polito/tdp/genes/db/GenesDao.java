@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import it.polito.tdp.genes.model.Adiacenza;
 import it.polito.tdp.genes.model.Genes;
 import it.polito.tdp.genes.model.Interactions;
 
@@ -39,7 +40,55 @@ public class GenesDao {
 		}
 	}
 	
+	public List<String> getVertici(){
+		String sql = "SELECT DISTINCT c.Localization "
+				+ "FROM classification c "
+				+ "ORDER BY c.Localization ASC";
+		List<String> result = new ArrayList<>();
+		Connection conn = DBConnect.getConnection();
 
+		try {
+			PreparedStatement st = conn.prepareStatement(sql);
+			ResultSet res = st.executeQuery();
+			while (res.next()) {
+				String localization = res.getString("c.Localization");
+				result.add(localization);
+			}
+			res.close();
+			st.close();
+			conn.close();
+			return result;
+			
+		} catch (SQLException e) {
+			throw new RuntimeException("Database error", e) ;
+		}
+	}
+	
+	public List<Adiacenza> getAdiacenze(){
+		String sql = "SELECT c1.Localization AS l1, c2.Localization AS l2, COUNT(DISTINCT i.`Type`) AS peso "
+				+ "FROM classification c1, classification c2, interactions i "
+				+ "WHERE c1.Localization < c2.Localization "
+				+ "AND ((c1.GeneID = i.GeneID1 AND c2.GeneID = i.GeneID2) OR (c1.GeneID = i.GeneID2 AND c2.GeneID = i.GeneID1)) "
+				+ "AND c1.GeneID != c2.GeneID "
+				+ "GROUP BY c1.Localization, c2.Localization";
+		List<Adiacenza> result = new ArrayList<>();
+		Connection conn = DBConnect.getConnection();
 
+		try {
+			PreparedStatement st = conn.prepareStatement(sql);
+			ResultSet res = st.executeQuery();
+			while (res.next()) {
+				Adiacenza a = new Adiacenza(res.getString("l1"), res.getString("l2"), res.getInt("peso"));
+				result.add(a);
+			}
+			res.close();
+			st.close();
+			conn.close();
+			return result;
+			
+		} catch (SQLException e) {
+			throw new RuntimeException("Database error", e) ;
+		}
+	}
 	
 }
