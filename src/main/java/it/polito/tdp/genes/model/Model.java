@@ -94,8 +94,8 @@ public class Model {
 		
 		String ultimo = parziale.get(parziale.size()-1);
 		for(String s: Graphs.neighborListOf(this.grafo, ultimo)) {
-			  DefaultWeightedEdge e = this.grafo.getEdge(ultimo, s);
-			   if(e != null && !parziale.contains(s)) {
+			  DefaultWeightedEdge edge = this.grafo.getEdge(ultimo, s);
+			   if(edge != null && !parziale.contains(s)) {
 				parziale.add(s);
 				peso += this.grafo.getEdgeWeight(this.grafo.getEdge(ultimo, s));
 				cerca(parziale, peso);
